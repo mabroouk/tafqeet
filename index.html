@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفقيط الفئات النقدية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            direction: rtl;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .container {
+            margin: 20px auto;
+            max-width: 800px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        input {
+            width: 60px;
+            text-align: center;
+        }
+
+        .summary {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .remaining {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        جدول تفقيط الفئات النقدية
+    </header>
+
+    <div class="container">
+        <label for="targetAmount">المبلغ المطلوب:</label>
+        <input type="number" id="targetAmount" placeholder="أدخل المبلغ" />
+        <button onclick="showTable()">إدخال الفئات</button>
+
+        <div id="tableContainer" class="hidden">
+            <table id="denominationTable">
+                <thead>
+                    <tr>
+                        <th>الفئة</th>
+                        <th>العدد</th>
+                        <th>المجموع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-value="1000">
+                        <td>1000</td>
+                        <td><input type="number" min="0" value="0" oninput="updateTotal(this)" /></td>
+                        <td>0</td>
+                    </tr>
+                    <tr data-value="500">
+                        <td>500</td>
+                        <td><input type="number" min="0" value="0" oninput="updateTotal(this)" /></td>
+                        <td>0</td>
+                    </tr>
+                    <tr data-value="200">
+                        <td>200</td>
+                        <td><input type="number" min="0" value="0" oninput="updateTotal(this)" /></td>
+                        <td>0</td>
+                    </tr>
+                    <tr data-value="100">
+                        <td>100</td>
+                        <td><input type="number" min="0" value="0" oninput="updateTotal(this)" /></td>
+                        <td>0</td>
+                    </tr>
+                    <tr data-value="50">
+                        <td>50</td>
+                        <td><input type="number" min="0" value="0" oninput="updateTotal(this)" /></td>
+                        <td>0</td>
+                    </tr>
+                    <tr data-value="20">
+                        <td>20</td>
+                        <td><input type="number" min="0" value="0" oninput="updateTotal(this)" /></td>
+                        <td>0</td>
+                    </tr>
+                    <tr data-value="10">
+                        <td>10</td>
+                        <td><input type="number" min="0" value="0" oninput="updateTotal(this)" /></td>
+                        <td>0</td>
+                    </tr>
+                    <tr data-value="5">
+                        <td>5</td>
+                        <td><input type="number" min="0" value="0" oninput="updateTotal(this)" /></td>
+                        <td>0</td>
+                    </tr>
+                    <tr data-value="1">
+                        <td>1</td>
+                        <td><input type="number" min="0" value="0" oninput="updateTotal(this)" /></td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="summary">
+                <strong>المجموع الكلي:</strong> <span id="totalAmount">0</span>
+                <div class="remaining">
+                    <strong>المبلغ الباقي:</strong> <span id="remainingAmount">0</span>
+                </div>
+            </div>
+            <button onclick="resetTable()">إعادة تعيين</button>
+        </div>
+    </div>
+
+    <script>
+        function showTable() {
+            document.getElementById('tableContainer').classList.remove('hidden');
+            calculateDenominations();
+        }
+
+        function updateTotal(input) {
+            const row = input.closest('tr');
+            const value = parseInt(row.dataset.value);
+            const count = parseInt(input.value) || 0;
+            row.cells[2].innerText = (value * count).toFixed(2);
+            updateTotalAmount();
+        }
+
+        function updateTotalAmount() {
+            let total = 0;
+            document.querySelectorAll('#denominationTable tbody tr').forEach(row => {
+                total += parseFloat(row.cells[2].innerText) || 0;
+            });
+            document.getElementById('totalAmount').innerText = total.toFixed(2);
+            updateRemainingAmount();
+        }
+
+        function calculateDenominations() {
+            const target = parseInt(document.getElementById('targetAmount').value) || 0;
+            let remaining = target;
+            document.querySelectorAll('#denominationTable tbody tr').forEach(row => {
+                const value = parseInt(row.dataset.value);
+                const count = Math.floor(remaining / value);
+                row.cells[1].querySelector('input').value = count;
+                row.cells[2].innerText = (value * count).toFixed(2);
+                remaining -= count * value;
+            });
+            updateTotalAmount();
+        }
+
+        function updateRemainingAmount() {
+            const target = parseFloat(document.getElementById('targetAmount').value) || 0;
+            const total = parseFloat(document.getElementById('totalAmount').innerText) || 0;
+            const remaining = target - total;
+            document.getElementById('remainingAmount').innerText = remaining.toFixed(2);
+        }
+
+        function resetTable() {
+            document.getElementById('targetAmount').value = '';
+            document.querySelectorAll('#denominationTable tbody tr').forEach(row => {
+                row.cells[1].querySelector('input').value = 0;
+                row.cells[2].innerText = '0';
+            });
+            document.getElementById('totalAmount').innerText = '0';
+            document.getElementById('remainingAmount').innerText = '0';
+            document.getElementById('tableContainer').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
